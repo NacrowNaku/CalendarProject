@@ -14,12 +14,12 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaul
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.calendar.myapplication.ui.components.TopBarComposable
 import com.calendar.myapplication.ui.theme.CalendarProjectTheme
 import com.calendar.myapplication.ui.theme.Purple40
 import com.calendar.myapplication.ui.theme.grey40
@@ -37,7 +37,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp() {
     CalendarProjectTheme {
-        var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CASHIER) }
+        val navController = rememberNavController()
+        val currentBackStack by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStack?.destination
         val navigationItemColors = NavigationSuiteDefaults.itemColors(
             navigationBarItemColors = NavigationBarItemDefaults.colors(
                 indicatorColor = Purple40,
@@ -47,57 +49,55 @@ fun MainApp() {
                 unselectedTextColor = grey40
             )
         )
+        val currentScreen = AppDestinations.entries.find { it.route == currentDestination?.route }
+            ?: AppDestinations.CASHIER
         Scaffold(
             topBar = {
-
+                TopBarComposable(
+                    userName = "test",
+                    title = "testTitle(1)",
+                    onBackPressed = {}
+                )
             },
             floatingActionButton = {
 
             }
-        ) { contentPadding -> Box(
-            modifier = Modifier.padding(contentPadding)
-        ) {
-            NavigationSuiteScaffold(
-                navigationSuiteItems = {
-                    AppDestinations.entries.forEach { screen ->
-                        item(
-                            icon = {
-                                Icon(
-                                    imageVector = screen.icon,
-                                    contentDescription = stringResource(screen.label),
-                                )
-                            },
-                            label = {
-                                Text(stringResource(screen.label))
-                            },
-                            selected = screen == currentDestination,
-                            onClick = {
-                                currentDestination = screen
-                            },
-                            colors = navigationItemColors
-                        )
-                    }
-                },
-                navigationSuiteColors = NavigationSuiteDefaults.colors(
-                    navigationBarContainerColor = Color.White,
-                ),
-                containerColor = Color.White
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier.padding(contentPadding)
             ) {
-                when (currentDestination) {
-                    AppDestinations.CASHIER -> Greeting("Cashier")
-                    AppDestinations.SCHEDULER -> Greeting("Scheduler")
-                    AppDestinations.TICKET -> Greeting("Ticket")
+                NavigationSuiteScaffold(
+                    navigationSuiteItems = {
+                        AppDestinations.entries.forEach { screen ->
+                            item(
+                                icon = {
+                                    Icon(
+                                        imageVector = screen.icon,
+                                        contentDescription = stringResource(screen.label),
+                                    )
+                                },
+                                label = {
+                                    Text(stringResource(screen.label))
+                                },
+                                selected = screen == currentScreen,
+                                onClick = {
+                                    navController.navigateSingleTopTo(screen.route)
+                                },
+                                colors = navigationItemColors
+                            )
+                        }
+                    },
+                    navigationSuiteColors = NavigationSuiteDefaults.colors(
+                        navigationBarContainerColor = Color.White,
+                    ),
+                    containerColor = Color.White
+                ) {
+                    AppNavHost(
+                        navController = navController,
+                        modifier = Modifier
+                    )
                 }
             }
         }
-        }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
