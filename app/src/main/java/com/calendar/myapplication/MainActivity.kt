@@ -87,8 +87,9 @@ fun MainApp() {
                             )
                         }
                     },
+                    layoutType = NavigationSuiteType.NavigationRail,
                     navigationSuiteColors = NavigationSuiteDefaults.colors(
-                        navigationBarContainerColor = Color.White,
+                        navigationRailContainerColor = Color.White,
                     ),
                     containerColor = Color.White
                 ) {
