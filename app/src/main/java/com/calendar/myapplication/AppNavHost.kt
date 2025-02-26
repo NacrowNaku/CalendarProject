@@ -29,6 +29,12 @@ fun AppNavHost(
         composable(route = AppDestinations.TICKET.route) {
             TicketScreen()
         }
+        composable(route = AppDestinations.NOTIFICATION.route) {
+            TicketScreen()
+        }
+        composable(route = AppDestinations.SETTING.route) {
+            TicketScreen()
+        }
     }
 }
 
